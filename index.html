@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMEPI - Login Lapangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="app.js"></script>
+</head>
+
+<body class="bg-gray-100 font-sans antialiased min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden relative">
+        <div class="bg-emerald-600 px-6 py-10 text-center relative overflow-hidden">
+            <i class="fa-solid fa-leaf absolute -right-4 -bottom-4 text-7xl text-emerald-700 opacity-40"></i>
+            <h1 class="text-3xl font-black text-white tracking-tight relative z-10">SMEPI</h1>
+            <p class="text-emerald-100 text-sm font-medium mt-1 relative z-10">Sistem Ekosistem Pertanian</p>
+        </div>
+
+        <div class="p-8">
+            <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">Masuk ke Akun Anda</h2>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Nomor HP</label>
+                    <div class="relative">
+                        <i
+                            class="fa-solid fa-phone absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="number" id="login-hp" required placeholder="0812xxxxxx"
+                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-gray-800 transition-all">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">PIN Rahasia</label>
+                    <div class="relative">
+                        <i
+                            class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" id="login-pin" required maxlength="6" placeholder="••••••"
+                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-black text-gray-800 tracking-[0.3em] transition-all">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-login"
+                    class="w-full py-4 mt-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-black rounded-xl shadow-lg shadow-emerald-200 text-lg flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <i class="fa-solid fa-right-to-bracket"></i> LOGIN SEKARANG
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Cek jika sudah login, langsung arahkan
+        const userStr = localStorage.getItem('smepi_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            // Gunakan .includes() agar fleksibel terhadap kata "Mandor", "mandor lapangan", dll
+            if (user.role && user.role.toLowerCase().includes('mandor')) {
+                window.location.href = 'mandor.html';
+            } else {
+                window.location.href = 'petani.html';
+            }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            const hp = document.getElementById('login-hp').value;
+            const pin = document.getElementById('login-pin').value;
+
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> MEMPROSES...`;
+            btn.disabled = true;
+
+            // Memanggil API via app.js
+            const response = await callAPI('login', { loginID: hp, pin: pin });
+
+            if (response.success) {
+                // Simpan data login ke memori
+                localStorage.setItem('smepi_user', JSON.stringify(response.data));
+
+                // Pengecekan jabatan yang lebih fleksibel
+                let roleDb = response.data.role ? response.data.role.toLowerCase() : "";
+
+                if (roleDb.includes('mandor')) {
+                    window.location.href = 'mandor.html';
+                } else {
+                    window.location.href = 'petani.html';
+                }
+            } else {
+                SMEPI_Alert("Gagal Login", response.message, "error");
+                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> LOGIN SEKARANG`;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>

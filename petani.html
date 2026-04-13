@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMEPI - Petani</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="app.js"></script>
+    <link rel="manifest" href="manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('Service Worker terdaftar!', reg);
+                }).catch(err => console.log('Service Worker gagal', err));
+            });
+        }
+    </script>
+</head>
+
+<body class="bg-gray-100">
+    <script>
+        // PROTEKSI HALAMAN: Mencegah user yg belum login
+        const currentUser = checkAuth();
+        // Jika user adalah mandor, usir ke halamannya
+        if (currentUser && currentUser.role === 'mandor') window.location.href = 'mandor.html';
+    </script>
+
+    <div class="max-w-md mx-auto bg-gray-50 min-h-screen relative font-sans shadow-2xl flex flex-col overflow-hidden">
+
+        <div class="bg-emerald-700 px-6 pt-10 pb-6 rounded-b-[2rem] shadow-lg text-white relative flex-shrink-0 z-20">
+            <div class="relative z-10 flex items-center justify-between">
+                <div>
+                    <p class="text-emerald-200 text-sm font-bold tracking-wider uppercase mb-1" id="pwa-nama-farm">
+                        MEMUAT...</p>
+                    <h2 id="pwa-nama-pekerja" class="text-3xl font-black tracking-tight">Pekerja</h2>
+                </div>
+                <div
+                    class="w-16 h-16 rounded-full bg-emerald-600 border-4 border-emerald-400 flex items-center justify-center text-3xl shadow-inner">
+                    <i class="fa-solid fa-user-helmet"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pb-32 px-5 pt-6" id="pwa-content-area">
+
+            <div id="tab-home" class="pwa-tab-content block">
+                <div class="flex justify-between items-end mb-6">
+                    <h3 class="font-black text-gray-800 text-2xl flex items-center gap-3"><i
+                            class="fa-solid fa-clipboard-list text-emerald-600 text-3xl"></i> Tugas Anda</h3>
+                    <button onclick="loadPwaTasks()"
+                        class="text-sm font-bold text-emerald-600 bg-emerald-100 px-3 py-2 rounded-xl"><i
+                            class="fa-solid fa-rotate-right"></i> Refresh</button>
+                </div>
+                <div id="pwa-task-list" class="space-y-5"></div>
+            </div>
+
+            <div id="tab-absen" class="pwa-tab-content hidden">
+                <div class="text-center mt-4">
+                    <div
+                        class="w-28 h-28 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 text-6xl shadow-inner border-4 border-white">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <h3 class="font-black text-3xl text-gray-800 mb-2">Absen Kehadiran</h3>
+                    <p class="text-gray-500 font-medium text-lg mb-10 px-4">Tekan tombol di bawah ini saat Anda tiba di
+                        lahan.</p>
+                    <button id="btn-absen" onclick="submitAbsen()"
+                        class="w-full bg-gradient-to-b from-blue-500 to-blue-700 text-white rounded-[2rem] py-8 shadow-xl border-4 border-white active:scale-95 transition-transform">
+                        <i class="fa-solid fa-hand-sparkles text-5xl mb-3 block"></i><span
+                            class="text-2xl font-black tracking-widest">SAYA HADIR</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="tab-saldo" class="pwa-tab-content hidden">
+                <h3 class="font-black text-gray-800 text-2xl flex items-center gap-3 mb-6"><i
+                        class="fa-solid fa-wallet text-amber-500 text-3xl"></i> Dompet Gaji</h3>
+                <div
+                    class="bg-gradient-to-br from-amber-400 to-orange-500 rounded-[2rem] p-8 shadow-xl text-white relative overflow-hidden mb-6">
+                    <p class="text-orange-100 font-bold text-lg mb-1 uppercase tracking-widest">Total Belum Dibayar</p>
+                    <h1 id="pwa-saldo-angka" class="text-5xl font-black tracking-tight mt-2">Rp 0</h1>
+                </div>
+            </div>
+
+            <div id="tab-profil" class="pwa-tab-content hidden">
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mt-4 relative">
+                    <button onclick="bukaModalEditProfil()"
+                        class="absolute top-6 right-6 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg text-xs font-bold"><i
+                            class="fa-solid fa-pen"></i> Edit</button>
+                    <div
+                        class="w-32 h-32 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6 text-7xl">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <h3 id="profil-nama" class="font-black text-3xl text-gray-800 mb-2">Nama</h3>
+                    <p id="profil-hp" class="text-xl text-gray-500 font-bold mb-10">08xxx</p>
+                    <button onclick="logoutApp()"
+                        class="w-full bg-red-100 text-red-600 py-6 rounded-2xl font-black text-xl"><i
+                            class="fa-solid fa-power-off"></i> KELUAR APLIKASI</button>
+                </div>
+            </div>
+
+        </div>
+
+        <nav
+            class="absolute bottom-0 w-full bg-white border-t-2 border-gray-100 flex justify-around items-center z-[100] pb-6 pt-4 px-2 shadow-lg rounded-t-[2.5rem]">
+            <button onclick="switchTab('tab-home', this)"
+                class="pwa-nav-btn text-emerald-600 flex flex-col items-center w-20 active:scale-90">
+                <div class="pwa-nav-icon bg-emerald-100 px-5 py-2 rounded-2xl"><i
+                        class="fa-solid fa-house text-2xl"></i></div><span
+                    class="text-[12px] font-bold mt-1">Tugas</span>
+            </button>
+            <button onclick="switchTab('tab-absen', this)"
+                class="pwa-nav-btn text-gray-400 flex flex-col items-center w-20 active:scale-90">
+                <div class="pwa-nav-icon px-5 py-2 rounded-2xl"><i class="fa-solid fa-location-dot text-2xl"></i></div>
+                <span class="text-[12px] font-bold mt-1">Absen</span>
+            </button>
+            <button onclick="switchTab('tab-saldo', this)"
+                class="pwa-nav-btn text-gray-400 flex flex-col items-center w-20 active:scale-90">
+                <div class="pwa-nav-icon px-5 py-2 rounded-2xl"><i class="fa-solid fa-wallet text-2xl"></i></div><span
+                    class="text-[12px] font-bold mt-1">Saldo</span>
+            </button>
+            <button onclick="switchTab('tab-profil', this)"
+                class="pwa-nav-btn text-gray-400 flex flex-col items-center w-20 active:scale-90">
+                <div class="pwa-nav-icon px-5 py-2 rounded-2xl"><i class="fa-solid fa-user text-2xl"></i></div><span
+                    class="text-[12px] font-bold mt-1">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="modal-kamera" class="fixed inset-0 bg-gray-900/90 hidden flex-col justify-end z-[500] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md mx-auto rounded-t-[2.5rem] p-6 pb-12"><input type="hidden"
+                id="kamera-id-task">
+            <div
+                class="w-full h-64 bg-gray-100 rounded-3xl border-4 border-dashed border-gray-300 flex flex-col items-center justify-center mb-6 relative overflow-hidden">
+                <i class="fa-solid fa-image text-6xl text-gray-300 mb-3"></i>
+                <p class="text-gray-400 font-bold text-lg" id="teks-preview">Belum ada foto</p><img id="foto-preview"
+                    class="absolute inset-0 w-full h-full object-cover hidden">
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-6"><label
+                    class="bg-blue-100 text-blue-700 py-5 rounded-2xl font-black text-lg text-center shadow-sm cursor-pointer"><i
+                        class="fa-solid fa-camera text-2xl block mb-1"></i> AMBIL FOTO<input type="file" id="input-foto"
+                        accept="image/*" capture="environment" class="hidden"
+                        onchange="previewFoto(event)"></label><button id="btn-kirim-foto"
+                    onclick="kirimLaporanSelesai()"
+                    class="bg-gray-300 text-gray-500 py-5 rounded-2xl font-black text-lg shadow-sm cursor-not-allowed"
+                    disabled><i class="fa-solid fa-paper-plane text-2xl block mb-1"></i> KIRIM</button></div><button
+                onclick="tutupModalKamera()"
+                class="w-full py-5 bg-red-100 text-red-600 font-black rounded-2xl text-xl">BATAL</button>
+        </div>
+    </div>
+    <div id="modal-edit-profil"
+        class="fixed inset-0 bg-gray-900/80 hidden flex-col justify-end z-[500] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md mx-auto rounded-t-[2.5rem] p-6 pb-12">
+            <form onsubmit="submitEditProfil(event)" class="space-y-4"><input type="text" id="edit-nama" required
+                    class="w-full p-3 bg-gray-50 border rounded-xl font-bold"><input type="password" id="edit-pin"
+                    required maxlength="6" placeholder="••••••"
+                    class="w-full p-3 bg-gray-50 border rounded-xl font-black text-center tracking-[0.5em] text-2xl">
+                <div class="flex gap-3"><button type="button" onclick="tutupModalEditProfil()"
+                        class="flex-1 py-4 bg-gray-100 font-black rounded-2xl">Batal</button><button type="submit"
+                        id="btn-submit-profil"
+                        class="flex-1 py-4 bg-emerald-600 text-white font-black rounded-2xl">Simpan</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let globalBase64Foto = ""; let globalMimeType = "";
+
+        async function pwaInit() {
+            if (!currentUser) return;
+            document.getElementById('profil-hp').innerText = currentUser.loginID;
+            await loadPwaTasks();
+        }
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.pwa-tab-content').forEach(el => { el.classList.remove('block'); el.classList.add('hidden'); });
+            document.querySelectorAll('.pwa-nav-btn').forEach(btn => { btn.classList.remove('text-emerald-600'); btn.classList.add('text-gray-400'); btn.querySelector('.pwa-nav-icon').classList.remove('bg-emerald-100'); });
+            document.getElementById(tabId).classList.remove('hidden'); document.getElementById(tabId).classList.add('block');
+            btnElement.classList.remove('text-gray-400'); btnElement.classList.add('text-emerald-600'); btnElement.querySelector('.pwa-nav-icon').classList.add('bg-emerald-100');
+        }
+
+        // API FETCH
+        async function loadPwaTasks() {
+            const listEl = document.getElementById('pwa-task-list');
+            listEl.innerHTML = `<div class="text-center p-10"><i class="fa-solid fa-circle-notch fa-spin text-5xl text-emerald-500"></i></div>`;
+
+            const res = await callAPI('getPetaniDashboard');
+            if (!res.success) { listEl.innerHTML = `<p class="text-red-500 font-bold text-center">${res.message}</p>`; return; }
+
+            document.getElementById('pwa-nama-pekerja').innerText = res.data.nama;
+            document.getElementById('pwa-nama-farm').innerText = res.data.farmName;
+            document.getElementById('profil-nama').innerText = res.data.nama;
+            document.getElementById('pwa-saldo-angka').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(res.data.saldo || 0);
+
+            if (res.data.tasks.length === 0) { listEl.innerHTML = `<div class="bg-white rounded-3xl p-12 text-center"><i class="fa-solid fa-mug-hot text-6xl text-emerald-400 mb-3"></i><h3 class="font-black text-2xl">Tugas Kosong</h3></div>`; return; }
+
+            let html = '';
+            res.data.tasks.forEach(t => {
+                let isMulai = t.status === 'Menunggu Dikerjakan' || t.status === 'Belum Dimulai';
+                let btnClass = isMulai ? 'bg-blue-100 text-blue-700' : 'bg-emerald-600 text-white';
+                let btnText = isMulai ? 'KERJAKAN SEKARANG' : 'SELESAI & FOTO';
+                let clickAction = isMulai ? `mulaiKerja('${t.id}')` : `bukaModalKamera('${t.id}')`;
+
+                html += `<div class="bg-white rounded-[2rem] shadow-sm mb-6"><div class="p-8 border-b border-gray-50"><div class="flex justify-between mb-4"><span class="bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-black">${t.tgl}</span><span class="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg text-sm font-black">${t.status}</span></div><h4 class="font-black text-3xl text-gray-800 mb-3">${t.jenis}</h4><p class="font-bold text-emerald-600 mb-3">${t.lahan}</p><p class="bg-yellow-50 p-4 rounded-xl font-medium">${t.target}</p></div><div class="p-5"><button onclick="${clickAction}" class="w-full ${btnClass} py-6 rounded-2xl font-black text-xl">${btnText}</button></div></div>`;
+            }); listEl.innerHTML = html;
+        }
+
+        function mulaiKerja(id) { SMEPI_Alert("Info", "Sistem mencatat Anda mulai mengerjakan tugas.", "info"); loadPwaTasks(); }
+
+        async function submitAbsen() {
+            const btn = document.getElementById('btn-absen'); btn.disabled = true; btn.innerHTML = `MEMPROSES...`;
+            const res = await callAPI('submitAbsen');
+            if (res.success) { btn.innerHTML = `SUDAH ABSEN`; btn.className = "w-full bg-emerald-500 text-white rounded-[2rem] py-8 border-4 border-white cursor-not-allowed font-black text-2xl"; SMEPI_Alert("Sukses", res.message, "success"); }
+            else { btn.innerHTML = `SAYA HADIR`; btn.disabled = false; SMEPI_Alert("Gagal", res.message, "error"); }
+        }
+
+        function bukaModalKamera(idTask) { document.getElementById('kamera-id-task').value = idTask; document.getElementById('foto-preview').classList.add('hidden'); document.getElementById('teks-preview').classList.remove('hidden'); document.getElementById('btn-kirim-foto').disabled = true; document.getElementById('btn-kirim-foto').className = "bg-gray-300 text-gray-500 py-5 rounded-2xl font-black text-lg shadow-sm cursor-not-allowed"; document.getElementById('modal-kamera').classList.remove('hidden'); document.getElementById('modal-kamera').classList.add('flex'); }
+        function tutupModalKamera() { document.getElementById('modal-kamera').classList.add('hidden'); document.getElementById('modal-kamera').classList.remove('flex'); }
+
+        function previewFoto(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader(); reader.readAsDataURL(file);
+            reader.onload = function (e) {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = function () {
+                    const canvas = document.createElement('canvas'); const MAX_WIDTH = 800; let scaleSize = Math.min(MAX_WIDTH / img.width, 1);
+                    canvas.width = img.width * scaleSize; canvas.height = img.height * scaleSize;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    globalBase64Foto = canvas.toDataURL('image/jpeg', 0.8); globalMimeType = 'image/jpeg';
+                    document.getElementById('foto-preview').src = globalBase64Foto; document.getElementById('foto-preview').classList.remove('hidden'); document.getElementById('teks-preview').classList.add('hidden');
+                    document.getElementById('btn-kirim-foto').disabled = false; document.getElementById('btn-kirim-foto').className = "bg-emerald-500 text-white py-5 rounded-2xl font-black text-lg";
+                }
+            }
+        }
+
+        async function kirimLaporanSelesai() {
+            const btn = document.getElementById('btn-kirim-foto'); btn.disabled = true; btn.innerHTML = "MENGIRIM...";
+            const res = await callAPI('completeTask', { taskId: document.getElementById('kamera-id-task').value, fotoBase64: globalBase64Foto, mimeType: globalMimeType });
+            tutupModalKamera(); SMEPI_Alert("Info", res.message, res.success ? "success" : "error"); loadPwaTasks();
+        }
+
+        function bukaModalEditProfil() { document.getElementById('edit-nama').value = document.getElementById('profil-nama').innerText; document.getElementById('modal-edit-profil').classList.remove('hidden'); document.getElementById('modal-edit-profil').classList.add('flex'); }
+        function tutupModalEditProfil() { document.getElementById('modal-edit-profil').classList.add('hidden'); document.getElementById('modal-edit-profil').classList.remove('flex'); }
+        async function submitEditProfil(e) {
+            e.preventDefault(); const pin = document.getElementById('edit-pin').value; if (pin.length !== 6) return SMEPI_Alert("Gagal", "PIN wajib 6 angka", "error");
+            const res = await callAPI('updateProfile', { newData: { nama: document.getElementById('edit-nama').value, pin: pin } });
+            tutupModalEditProfil(); SMEPI_Alert("Info", res.message, "info"); loadPwaTasks();
+        }
+
+        pwaInit();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SMEPI - Mandor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="app.js"></script>
+</head>
+
+<body class="bg-gray-100">
+    <script>
+        // PROTEKSI HALAMAN: Hanya Mandor yang boleh masuk
+        const currentUser = checkAuth('mandor');
+    </script>
+
+    <div class="max-w-md mx-auto bg-gray-50 min-h-screen relative font-sans shadow-2xl flex flex-col overflow-hidden">
+
+        <div class="bg-indigo-700 px-6 pt-10 pb-6 rounded-b-[2rem] shadow-lg text-white relative flex-shrink-0 z-20">
+            <div class="relative z-10 flex items-center justify-between">
+                <div>
+                    <p class="text-indigo-200 text-sm font-bold tracking-wider uppercase mb-1"
+                        id="pwa-nama-farm-mandor">MEMUAT...</p>
+                    <h2 id="pwa-nama-mandor" class="text-3xl font-black tracking-tight">Mandor</h2>
+                </div>
+                <div
+                    class="w-16 h-16 rounded-full bg-indigo-600 border-4 border-indigo-400 flex items-center justify-center text-3xl shadow-inner">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pb-32 px-5 pt-6" id="pwa-content-area-mandor">
+
+            <div id="tab-home-mandor" class="pwa-tab-content-mandor block">
+                <div
+                    class="bg-white rounded-3xl p-5 shadow-sm border border-indigo-50 mb-6 flex justify-between items-center relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-indigo-50 rounded-full opacity-50"></div>
+                    <div>
+                        <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Butuh Verifikasi</h4>
+                        <p class="text-3xl font-black text-indigo-600" id="count-pending">0 <span
+                                class="text-sm font-bold text-gray-400">Tugas</span></p>
+                    </div>
+                    <button onclick="loadPwaMandor()"
+                        class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-xl shadow-inner active:scale-90 transition-transform">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+                <h3 class="font-black text-gray-800 text-xl mb-4 flex items-center gap-2"><i
+                        class="fa-solid fa-list-check text-indigo-600"></i> Antrean Cek Lapangan</h3>
+                <div id="pwa-verifikasi-list" class="space-y-4"></div>
+            </div>
+
+            <div id="tab-buat-tugas" class="pwa-tab-content-mandor hidden">
+                <h3 class="font-black text-gray-800 text-2xl mb-2">Tugas Baru</h3>
+                <p class="text-gray-500 text-sm font-medium mb-6">Berikan instruksi langsung ke petani dari lapangan.
+                </p>
+                <form id="form-buat-tugas" onsubmit="submitTugasBaru(event)"
+                    class="space-y-5 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Pilih Lahan</label>
+                        <select id="input-m-lahan" required
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-800"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Pilih Petani</label>
+                        <select id="input-m-pekerja" required
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-800"></select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Jenis Pekerjaan</label>
+                        <select id="input-m-jenis" required
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-gray-800">
+                            <option value="Persiapan Lahan / Bajak">Persiapan Lahan / Bajak</option>
+                            <option value="Penanaman / Tandur">Penanaman / Tandur</option>
+                            <option value="Pemupukan / Pengobatan">Pemupukan / Pengobatan</option>
+                            <option value="Penyiangan Rumput">Penyiangan Rumput</option>
+                            <option value="Pemanenan">Pemanenan</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Target / Instruksi
+                            Khusus</label>
+                        <textarea id="input-m-target" required rows="3"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-medium text-gray-800"></textarea>
+                    </div>
+                    <button type="submit" id="btn-submit-tugas"
+                        class="w-full py-4 bg-indigo-600 text-white font-black rounded-2xl shadow-lg active:scale-95 transition-transform mt-2">KIRIM
+                        TUGAS</button>
+                </form>
+            </div>
+
+            <div id="tab-riwayat" class="pwa-tab-content-mandor hidden">
+                <h3 class="font-black text-gray-800 text-2xl mb-4">Riwayat Tugas</h3>
+                <input type="text" id="search-riwayat" onkeyup="filterRiwayat()" placeholder="Cari Lahan, Nama..."
+                    class="w-full px-4 py-3 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none font-medium mb-6">
+                <div id="pwa-riwayat-list" class="space-y-4"></div>
+            </div>
+
+            <div id="tab-gudang" class="pwa-tab-content-mandor hidden">
+                <div class="flex justify-between items-end mb-6">
+                    <h3 class="font-black text-gray-800 text-2xl"><i
+                            class="fa-solid fa-boxes-stacked text-indigo-600 mr-2"></i>Gudang</h3>
+                    <button onclick="bukaModalRequest()"
+                        class="text-xs font-bold text-white bg-indigo-600 px-3 py-2 rounded-lg shadow-sm active:scale-95">Request</button>
+                </div>
+                <div id="pwa-gudang-content"></div>
+            </div>
+
+            <div id="tab-profil" class="pwa-tab-content-mandor hidden">
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center mt-4 relative">
+                    <button onclick="bukaModalEditProfil()"
+                        class="absolute top-6 right-6 text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg text-xs font-bold"><i
+                            class="fa-solid fa-pen"></i> Edit</button>
+                    <div
+                        class="w-32 h-32 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-6 text-7xl">
+                        <i class="fa-solid fa-user-tie"></i></div>
+                    <h3 id="profil-nama-mandor" class="font-black text-3xl text-gray-800 mb-2">Nama</h3>
+                    <p id="profil-hp-mandor" class="text-xl text-gray-500 font-bold mb-10">08xxx</p>
+                    <button onclick="logoutApp()"
+                        class="w-full bg-red-100 text-red-600 py-6 rounded-2xl font-black text-xl"><i
+                            class="fa-solid fa-power-off"></i> KELUAR</button>
+                </div>
+            </div>
+
+        </div>
+
+        <nav
+            class="absolute bottom-0 w-full bg-white border-t-2 border-gray-100 flex justify-around items-center z-[100] pb-6 pt-4 px-1 shadow-lg rounded-t-[2.5rem]">
+            <button onclick="switchTabMandor('tab-home-mandor', this)"
+                class="m-nav-btn text-indigo-600 flex flex-col items-center w-16 active:scale-90">
+                <div class="m-nav-icon bg-indigo-100 w-12 h-10 flex items-center justify-center rounded-2xl"><i
+                        class="fa-solid fa-house text-xl"></i></div><span
+                    class="text-[10px] font-bold mt-1">Verifikasi</span>
+            </button>
+            <button onclick="switchTabMandor('tab-buat-tugas', this)"
+                class="m-nav-btn text-gray-400 flex flex-col items-center w-16 active:scale-90">
+                <div class="m-nav-icon w-12 h-10 flex items-center justify-center rounded-2xl"><i
+                        class="fa-solid fa-pen-to-square text-xl"></i></div><span
+                    class="text-[10px] font-bold mt-1">Buat</span>
+            </button>
+            <button onclick="switchTabMandor('tab-riwayat', this)"
+                class="m-nav-btn text-gray-400 flex flex-col items-center w-16 active:scale-90">
+                <div class="m-nav-icon w-12 h-10 flex items-center justify-center rounded-2xl"><i
+                        class="fa-solid fa-clock-rotate-left text-xl"></i></div><span
+                    class="text-[10px] font-bold mt-1">Riwayat</span>
+            </button>
+            <button onclick="switchTabMandor('tab-gudang', this)"
+                class="m-nav-btn text-gray-400 flex flex-col items-center w-16 active:scale-90">
+                <div class="m-nav-icon w-12 h-10 flex items-center justify-center rounded-2xl"><i
+                        class="fa-solid fa-boxes-stacked text-xl"></i></div><span
+                    class="text-[10px] font-bold mt-1">Gudang</span>
+            </button>
+            <button onclick="switchTabMandor('tab-profil', this)"
+                class="m-nav-btn text-gray-400 flex flex-col items-center w-16 active:scale-90">
+                <div class="m-nav-icon w-12 h-10 flex items-center justify-center rounded-2xl"><i
+                        class="fa-solid fa-user-tie text-xl"></i></div><span
+                    class="text-[10px] font-bold mt-1">Profil</span>
+            </button>
+        </nav>
+    </div>
+
+    <div id="modal-override" class="fixed inset-0 bg-gray-900/80 hidden flex-col justify-end z-[500] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md mx-auto rounded-t-[2.5rem] p-6 pb-12"><input type="hidden"
+                id="override-id-task"><button onclick="simpanOverride('Menunggu Dikerjakan')"
+                class="w-full bg-amber-50 text-amber-700 py-4 mb-3 rounded-2xl font-bold">Menunggu
+                Dikerjakan</button><button onclick="simpanOverride('Menunggu Verifikasi')"
+                class="w-full bg-blue-50 text-blue-700 py-4 mb-3 rounded-2xl font-bold">Menunggu Verifikasi
+                (Selesai)</button><button onclick="simpanOverride('Approved')"
+                class="w-full bg-emerald-50 text-emerald-700 py-4 mb-6 rounded-2xl font-bold">Approved
+                (Sah)</button><button onclick="tutupModalOverride()"
+                class="w-full py-4 bg-gray-100 font-black rounded-2xl">Batal</button></div>
+    </div>
+    <div id="modal-request" class="fixed inset-0 bg-gray-900/80 hidden flex-col justify-end z-[500] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md mx-auto rounded-t-[2.5rem] p-6 pb-12">
+            <form onsubmit="submitRequestGudang(event)" class="space-y-4"><select id="req-id-barang"
+                    onchange="toggleManualBarang()" required class="w-full p-3 bg-gray-50 border rounded-xl font-bold">
+                    <option value="">-- Memuat --</option>
+                </select>
+                <div id="div-req-manual" class="hidden"><input type="text" id="req-nama-manual"
+                        placeholder="Ketik Manual..." class="w-full p-3 bg-emerald-50 border rounded-xl font-bold">
+                </div><input type="number" id="req-qty" required placeholder="Jumlah"
+                    class="w-full p-3 bg-gray-50 border rounded-xl font-black text-center text-xl"><textarea
+                    id="req-note" required rows="2" placeholder="Catatan"
+                    class="w-full p-3 bg-gray-50 border rounded-xl font-medium"></textarea>
+                <div class="flex gap-3"><button type="button" onclick="tutupModalRequest()"
+                        class="flex-1 py-4 bg-gray-100 font-black rounded-2xl">Batal</button><button type="submit"
+                        id="btn-submit-req"
+                        class="flex-1 py-4 bg-indigo-600 text-white font-black rounded-2xl">Kirim</button></div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-edit-profil"
+        class="fixed inset-0 bg-gray-900/80 hidden flex-col justify-end z-[500] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md mx-auto rounded-t-[2.5rem] p-6 pb-12">
+            <form onsubmit="submitEditProfil(event)" class="space-y-4"><input type="text" id="edit-nama" required
+                    class="w-full p-3 bg-gray-50 border rounded-xl font-bold"><input type="password" id="edit-pin"
+                    required maxlength="6" placeholder="••••••"
+                    class="w-full p-3 bg-gray-50 border rounded-xl font-black text-center tracking-[0.5em] text-2xl">
+                <div class="flex gap-3"><button type="button" onclick="tutupModalEditProfil()"
+                        class="flex-1 py-4 bg-gray-100 font-black rounded-2xl">Batal</button><button type="submit"
+                        id="btn-submit-profil"
+                        class="flex-1 py-4 bg-indigo-600 text-white font-black rounded-2xl">Simpan</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let globalAllTasks = [];
+
+        async function pwaMandorInit() {
+            if (!currentUser) return;
+            document.getElementById('profil-hp-mandor').innerText = currentUser.loginID;
+            await loadPwaMandor();
+            await loadPwaGudang();
+        }
+
+        function switchTabMandor(tabId, btnElement) {
+            document.querySelectorAll('.pwa-tab-content-mandor').forEach(el => { el.classList.remove('block'); el.classList.add('hidden'); });
+            document.querySelectorAll('.m-nav-btn').forEach(btn => { btn.classList.remove('text-indigo-600'); btn.classList.add('text-gray-400'); btn.querySelector('.m-nav-icon').classList.remove('bg-indigo-100'); });
+            document.getElementById(tabId).classList.remove('hidden'); document.getElementById(tabId).classList.add('block');
+            btnElement.classList.remove('text-gray-400'); btnElement.classList.add('text-indigo-600'); btnElement.querySelector('.m-nav-icon').classList.add('bg-indigo-100');
+        }
+
+        // MENGGUNAKAN API FETCH (VERCEL READY)
+        async function loadPwaMandor() {
+            const listVerif = document.getElementById('pwa-verifikasi-list');
+            listVerif.innerHTML = `<div class="text-center p-6"><i class="fa-solid fa-circle-notch fa-spin text-3xl text-indigo-500"></i></div>`;
+
+            const res = await callAPI('getMandorDashboard');
+
+            if (!res.success) { listVerif.innerHTML = `<p class="text-red-500 text-center font-bold">${res.message}</p>`; return; }
+
+            document.getElementById('pwa-nama-mandor').innerText = res.data.nama;
+            document.getElementById('profil-nama-mandor').innerText = res.data.nama;
+            document.getElementById('pwa-nama-farm-mandor').innerText = res.data.farmName;
+            document.getElementById('count-pending').innerHTML = `${res.data.pendingTasks.length} <span class="text-sm font-bold text-gray-400">Tugas</span>`;
+
+            renderDropdowns(res.data.lahanList, res.data.pekerjaList);
+            renderVerifikasi(res.data.pendingTasks, listVerif);
+            globalAllTasks = res.data.allTasks;
+            renderRiwayat(globalAllTasks, document.getElementById('pwa-riwayat-list'));
+        }
+
+        function renderDropdowns(lahanList, pekerjaList) {
+            const selLahan = document.getElementById('input-m-lahan'); const selPekerja = document.getElementById('input-m-pekerja');
+            let optL = '<option value="">-- Pilih Lahan --</option>'; lahanList.forEach(l => optL += `<option value="${l}">${l}</option>`); selLahan.innerHTML = optL;
+            let optP = '<option value="">-- Pilih Pekerja --</option>'; pekerjaList.forEach(p => optP += `<option value="${p}">${p}</option>`); selPekerja.innerHTML = optP;
+        }
+
+        function renderVerifikasi(tasks, container) {
+            if (tasks.length === 0) { container.innerHTML = `<div class="bg-white rounded-2xl p-8 text-center"><i class="fa-solid fa-check-double text-4xl text-indigo-400 mb-2"></i><h3 class="font-black text-lg">Semua Bersih</h3></div>`; return; }
+            let html = '';
+            tasks.forEach(t => {
+                let btnFoto = (t.foto && t.foto !== "-") ? `<a href="${t.foto}" target="_blank" class="mt-2 w-full flex items-center justify-center gap-1.5 bg-sky-50 text-sky-600 py-2 rounded-lg text-xs font-black"><i class="fa-solid fa-image"></i> LIHAT BUKTI FOTO</a>` : '';
+                html += `<div class="bg-white rounded-2xl shadow-sm mb-3"><div class="p-4 border-b border-gray-50"><div class="flex justify-between mb-2"><span class="text-gray-500 text-[10px] font-black">${t.tgl}</span><span class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-[10px] font-black">${t.pekerja}</span></div><h4 class="font-black text-lg text-gray-800 mb-2">${t.jenis}</h4><p class="text-xs font-bold text-indigo-600">${t.lahan}</p><p class="text-xs mt-1 bg-gray-50 p-2 rounded">${t.target}</p>${btnFoto}</div><div class="p-3 bg-gray-50/50 flex gap-2"><button onclick="verifikasiTugas('${t.id}', 'reject')" class="flex-1 bg-white border border-red-200 text-red-600 py-2.5 rounded-xl font-black text-xs">TOLAK</button><button onclick="verifikasiTugas('${t.id}', 'approve')" class="flex-1 bg-emerald-500 text-white py-2.5 rounded-xl font-black text-xs">SETUJUI</button></div></div>`;
+            }); container.innerHTML = html;
+        }
+
+        function renderRiwayat(tasks, container) {
+            if (tasks.length === 0) { container.innerHTML = `<p class="text-center text-gray-400 font-bold">Belum ada riwayat.</p>`; return; }
+            let html = '';
+            tasks.forEach(t => {
+                html += `<div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 search-item mb-4"><div class="flex justify-between mb-2"><span class="text-[10px] font-black bg-gray-100 px-2 py-1 rounded">${t.tgl}</span><span class="px-2 py-1 rounded text-[10px] font-black bg-gray-100">${t.status}</span></div><h4 class="font-black text-lg mb-1">${t.jenis}</h4><p class="text-xs font-bold text-gray-500 mb-3">${t.pekerja} • ${t.lahan}</p><button onclick="bukaModalOverride('${t.id}')" class="w-full py-2 bg-gray-50 text-indigo-600 rounded-xl text-xs font-black">Ubah Status</button></div>`;
+            }); container.innerHTML = html;
+        }
+
+        function filterRiwayat() { let filter = document.getElementById('search-riwayat').value.toLowerCase(); document.querySelectorAll('.search-item').forEach(el => { el.style.display = el.innerText.toLowerCase().indexOf(filter) > -1 ? "" : "none"; }); }
+
+        async function verifikasiTugas(id, action) {
+            let isYes = await SMEPI_Confirm("Konfirmasi", "Lanjutkan proses verifikasi?", "Ya", "info");
+            if (isYes) {
+                const res = await callAPI('verifyTask', { taskId: id, taskAction: action });
+                SMEPI_Alert(res.success ? "Berhasil" : "Gagal", res.message, res.success ? "success" : "error");
+                loadPwaMandor();
+            }
+        }
+
+        async function submitTugasBaru(e) {
+            e.preventDefault(); const btn = document.getElementById('btn-submit-tugas'); btn.innerHTML = `MEMPROSES...`; btn.disabled = true;
+            const payload = { lahan: document.getElementById('input-m-lahan').value, pekerja: document.getElementById('input-m-pekerja').value, jenis: document.getElementById('input-m-jenis').value, instruksi: document.getElementById('input-m-target').value };
+            const res = await callAPI('createTask', { taskData: payload });
+            btn.innerHTML = `KIRIM TUGAS`; btn.disabled = false;
+            if (res.success) { SMEPI_Alert("Sukses", res.message, "success"); document.getElementById('form-buat-tugas').reset(); loadPwaMandor(); } else SMEPI_Alert("Gagal", res.message, "error");
+        }
+
+        function bukaModalOverride(id) { document.getElementById('override-id-task').value = id; document.getElementById('modal-override').classList.remove('hidden'); document.getElementById('modal-override').classList.add('flex'); }
+        function tutupModalOverride() { document.getElementById('modal-override').classList.add('hidden'); document.getElementById('modal-override').classList.remove('flex'); }
+        async function simpanOverride(status) {
+            tutupModalOverride(); const id = document.getElementById('override-id-task').value;
+            const res = await callAPI('overrideTaskStatus', { taskId: id, newStatus: status });
+            SMEPI_Alert(res.success ? "Sukses" : "Gagal", res.message, res.success ? "success" : "error"); loadPwaMandor();
+        }
+
+        async function loadPwaGudang() {
+            const container = document.getElementById('pwa-gudang-content');
+            const res = await callAPI('getGudangData');
+            if (!res.success) return;
+
+            let optHtml = '<option value="">-- Pilih Barang --</option>';
+            res.data.allItems.forEach(b => { optHtml += `<option value="${b.id}|${b.nama}">${b.nama}</option>`; });
+            optHtml += '<option value="MANUAL">➕ Ketik Manual</option>';
+            document.getElementById('req-id-barang').innerHTML = optHtml;
+
+            let html = '';
+            res.data.lowStok.forEach(b => { html += `<div class="bg-red-50 p-4 rounded-xl mb-3 flex justify-between font-bold"><p>${b.nama}</p><p class="text-red-600">${b.qty}</p></div>`; });
+            res.data.allItems.forEach(b => { html += `<div class="bg-white shadow-sm border p-4 rounded-xl mb-3 flex justify-between font-bold"><p>${b.nama}</p><p class="text-emerald-600">${b.qty}</p></div>`; });
+            container.innerHTML = html;
+        }
+
+        function toggleManualBarang() { document.getElementById('div-req-manual').className = document.getElementById('req-id-barang').value === 'MANUAL' ? "space-y-1 block" : "hidden"; }
+        function bukaModalRequest() { document.getElementById('modal-request').classList.remove('hidden'); document.getElementById('modal-request').classList.add('flex'); }
+        function tutupModalRequest() { document.getElementById('modal-request').classList.add('hidden'); document.getElementById('modal-request').classList.remove('flex'); }
+
+        async function submitRequestGudang(e) {
+            e.preventDefault(); const btn = document.getElementById('btn-submit-req'); btn.disabled = true;
+            const idVal = document.getElementById('req-id-barang').value;
+            const idBarang = idVal === 'MANUAL' ? 'MANUAL' : idVal.split('|')[0];
+            const namaBarang = idVal === 'MANUAL' ? document.getElementById('req-nama-manual').value : idVal.split('|')[1];
+
+            const res = await callAPI('requestItem', { idBarang: idBarang, namaBarang: namaBarang, qty: document.getElementById('req-qty').value, note: document.getElementById('req-note').value });
+            tutupModalRequest(); btn.disabled = false; SMEPI_Alert("Info", res.message, res.success ? "success" : "error");
+        }
+
+        function bukaModalEditProfil() { document.getElementById('modal-edit-profil').classList.remove('hidden'); document.getElementById('modal-edit-profil').classList.add('flex'); }
+        function tutupModalEditProfil() { document.getElementById('modal-edit-profil').classList.add('hidden'); document.getElementById('modal-edit-profil').classList.remove('flex'); }
+        async function submitEditProfil(e) {
+            e.preventDefault(); const pin = document.getElementById('edit-pin').value; if (pin.length !== 6) return SMEPI_Alert("Gagal", "PIN wajib 6 angka", "error");
+            const res = await callAPI('updateProfile', { newData: { nama: document.getElementById('edit-nama').value, pin: pin } });
+            tutupModalEditProfil(); SMEPI_Alert("Info", res.message, "info"); loadPwaMandor();
+        }
+
+        pwaMandorInit();
+    </script>
+</body>
+
+</html>
