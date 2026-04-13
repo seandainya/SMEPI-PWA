@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,53 +11,55 @@
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('Service Worker terdaftar!', reg);
-                }).catch(err => console.log('Service Worker gagal', err));
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error', err));
             });
         }
     </script>
 </head>
-
-<body class="bg-gray-100 font-sans antialiased min-h-screen flex items-center justify-center p-4">
-
-    <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden relative">
-        <div class="bg-emerald-600 px-6 py-10 text-center relative overflow-hidden">
-            <i class="fa-solid fa-leaf absolute -right-4 -bottom-4 text-7xl text-emerald-700 opacity-40"></i>
-            <h1 class="text-3xl font-black text-white tracking-tight relative z-10">SMEPI</h1>
-            <p class="text-emerald-100 text-sm font-medium mt-1 relative z-10">Sistem Ekosistem Pertanian</p>
+<body class="bg-gray-900 font-sans antialiased"> <div class="max-w-md mx-auto bg-white h-[100dvh] relative shadow-2xl flex flex-col overflow-hidden">
+        
+        <div class="flex-1 bg-gradient-to-br from-emerald-500 to-teal-800 flex flex-col items-center justify-center relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute bottom-10 -left-10 w-40 h-40 bg-emerald-400/20 rounded-full blur-2xl"></div>
+            <i class="fa-solid fa-leaf absolute top-1/4 -right-4 text-8xl text-white/5 -rotate-12"></i>
+            
+            <div class="relative z-10 flex flex-col items-center">
+                <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center border border-white/30 shadow-lg mb-4">
+                    <i class="fa-solid fa-leaf text-4xl text-white"></i>
+                </div>
+                <h1 class="text-4xl font-black text-white tracking-tight">SMEPI</h1>
+                <p class="text-emerald-100 text-xs font-bold tracking-widest uppercase mt-1">Gerbang Lapangan</p>
+            </div>
         </div>
 
-        <div class="p-8">
-            <h2 class="text-xl font-bold text-gray-800 mb-6 text-center">Masuk ke Akun Anda</h2>
-
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+        <div class="bg-white rounded-t-[2.5rem] px-8 pt-10 pb-12 -mt-8 relative z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] flex-none">
+            <h2 class="text-2xl font-black text-gray-800 mb-6 text-center">Selamat Datang</h2>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">Nomor HP</label>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Nomor HP Terdaftar</label>
                     <div class="relative">
-                        <i
-                            class="fa-solid fa-phone absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="number" id="login-hp" required placeholder="0812xxxxxx"
-                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-gray-800 transition-all">
+                        <i class="fa-solid fa-phone absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500"></i>
+                        <input type="number" id="login-hp" required placeholder="0812xxxxxx" class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-gray-800 transition-all text-sm shadow-sm">
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-xs font-bold text-gray-500 uppercase tracking-wider">PIN Rahasia</label>
+                    <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">PIN Rahasia</label>
                     <div class="relative">
-                        <i
-                            class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="password" id="login-pin" required maxlength="6" placeholder="••••••"
-                            class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none font-black text-gray-800 tracking-[0.3em] transition-all">
+                        <i class="fa-solid fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-emerald-500"></i>
+                        <input type="password" id="login-pin" required maxlength="6" placeholder="••••••" class="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-100 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none font-black text-gray-800 tracking-[0.3em] transition-all text-lg shadow-sm">
+                        <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-emerald-600 focus:outline-none transition-colors p-1 active:scale-90">
+                            <i id="eye-icon" class="fa-solid fa-eye text-lg"></i>
+                        </button>
                     </div>
                 </div>
 
-                <button type="submit" id="btn-login"
-                    class="w-full py-4 mt-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-black rounded-xl shadow-lg shadow-emerald-200 text-lg flex items-center justify-center gap-2 active:scale-95 transition-all">
-                    <i class="fa-solid fa-right-to-bracket"></i> LOGIN SEKARANG
+                <button type="submit" id="btn-login" class="w-full py-4 mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl shadow-lg shadow-emerald-200 text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform">
+                    LOGIN SEKARANG <i class="fa-solid fa-arrow-right ml-1"></i>
                 </button>
-                <button type="button" id="btn-install-pwa"
-                    class="hidden w-full py-4 mt-4 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-black rounded-xl shadow-sm text-lg flex items-center justify-center gap-2 transition-all">
+
+                <button type="button" id="btn-install-pwa" class="hidden w-full py-4 mt-3 bg-gray-50 text-emerald-600 font-black rounded-2xl border border-emerald-100 shadow-sm text-sm flex items-center justify-center gap-2 active:scale-95 transition-transform">
                     <i class="fa-solid fa-download"></i> INSTALL APLIKASI KE HP
                 </button>
             </form>
@@ -67,40 +68,33 @@
 
     <script>
         // ==========================================
-        // LOGIKA CUSTOM INSTALL PWA
+        // LOGIKA SHOW/HIDE PASSWORD (EYE ICON)
         // ==========================================
-        let deferredPrompt;
-        const installBtn = document.getElementById('btn-install-pwa');
-
-        // Mencegat sinyal "Bisa Diinstall" dari Google Chrome
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Mencegah Chrome memunculkan mini-infobar bawaannya
-            e.preventDefault();
-            // Simpan event-nya agar bisa dipicu nanti
-            deferredPrompt = e;
-            // Tampilkan tombol "INSTALL" buatan kita
-            installBtn.classList.remove('hidden');
-        });
-
-        // Jika tombol "Install" buatan kita diklik
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt !== null) {
-                // Munculkan Pop-up Install resmi dari sistem Android/Chrome
-                deferredPrompt.prompt();
-                // Tunggu respon pengguna (apakah mereka klik "Install" atau "Cancel")
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User menginstal aplikasi');
-                    installBtn.classList.add('hidden'); // Sembunyikan tombol setelah diinstall
-                }
-                deferredPrompt = null;
+        function togglePassword() {
+            const pinInput = document.getElementById('login-pin');
+            const eyeIcon = document.getElementById('eye-icon');
+            
+            if (pinInput.type === 'password') {
+                pinInput.type = 'text';
+                // Ganti ikon menjadi mata dicoret
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+                eyeIcon.classList.add('text-emerald-600'); // Ubah warna agar terlihat aktif
+            } else {
+                pinInput.type = 'password';
+                // Kembalikan ke ikon mata biasa
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+                eyeIcon.classList.remove('text-emerald-600');
             }
-        });
-        // Cek jika sudah login, langsung arahkan
+        }
+
+        // ==========================================
+        // LOGIKA CEK SESI LOGIN (AUTO-REDIRECT)
+        // ==========================================
         const userStr = localStorage.getItem('smepi_user');
         if (userStr) {
             const user = JSON.parse(userStr);
-            // Gunakan .includes() agar fleksibel terhadap kata "Mandor", "mandor lapangan", dll
             if (user.role && user.role.toLowerCase().includes('mandor')) {
                 window.location.href = 'mandor.html';
             } else {
@@ -108,6 +102,9 @@
             }
         }
 
+        // ==========================================
+        // LOGIKA API LOGIN
+        // ==========================================
         async function handleLogin(e) {
             e.preventDefault();
             const btn = document.getElementById('btn-login');
@@ -117,16 +114,12 @@
             btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> MEMPROSES...`;
             btn.disabled = true;
 
-            // Memanggil API via app.js
             const response = await callAPI('login', { loginID: hp, pin: pin });
 
             if (response.success) {
-                // Simpan data login ke memori
                 localStorage.setItem('smepi_user', JSON.stringify(response.data));
-
-                // Pengecekan jabatan yang lebih fleksibel
                 let roleDb = response.data.role ? response.data.role.toLowerCase() : "";
-
+                
                 if (roleDb.includes('mandor')) {
                     window.location.href = 'mandor.html';
                 } else {
@@ -134,11 +127,34 @@
                 }
             } else {
                 SMEPI_Alert("Gagal Login", response.message, "error");
-                btn.innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> LOGIN SEKARANG`;
+                btn.innerHTML = `LOGIN SEKARANG <i class="fa-solid fa-arrow-right ml-1"></i>`;
                 btn.disabled = false;
             }
         }
+
+        // ==========================================
+        // LOGIKA CUSTOM INSTALL PWA
+        // ==========================================
+        let deferredPrompt;
+        const installBtn = document.getElementById('btn-install-pwa');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt !== null) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User menginstal aplikasi');
+                    installBtn.classList.add('hidden'); 
+                }
+                deferredPrompt = null;
+            }
+        });
     </script>
 </body>
-
 </html>
